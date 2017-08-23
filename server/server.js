@@ -7,7 +7,7 @@ const express = require('express');
 const socketIO = require('socket.io');
 
 // File locali
-const {generateMessage} = require('./utils/message');
+const {generateMessage, generateLocationMessage} = require('./utils/message');
 
 // costanti
 const publicPath = path.join(__dirname, '../public');
@@ -36,7 +36,7 @@ io.on('connection', (socket) => {
   });
 
   socket.on('createLocationMessage', (cords) => {
-    io.emit('newMessage', generateMessage('Admin', `${cords.latitude}, ${cords.longitude}`));
+    io.emit('newLocationMessage', generateLocationMessage('Admin', cords.latitude, cords.longitude));
   });
 
   socket.on('disconnect', () => {

@@ -16,6 +16,16 @@ socket.on('newMessage', function (message) {
   $("#messages").append(li);
 });
 
+socket.on('newLocationMessage', function (message) {
+  console.log('New message', message);
+  var li = $('<li></li>');
+  var a = $('<a target="_blank">My current location</a>');
+  a.attr('href', message.url);
+  li.text(`${message.from}: `).append(a);
+
+  $("#messages").append(li);
+});
+
 // socket.emit('createMessage', {
 //   from: 'Frank',
 //   text: 'Hi!'
