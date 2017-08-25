@@ -53,13 +53,24 @@ io.on('connection', (socket) => {
     callback();
   })
 
+// CREATE MESSAGE ROOM //////////////////////////////////////////////////////
   socket.on('createMessage', (message, callback) => {
-    io.emit('newMessage', generateMessage(message.from, message.text));
-    callback('This is from String');
-  });
+    var user = users.getUser(socket.id);
 
+    if(user && isRealString(message.text)){
+      io.to(user.room).emit('newMessage', generateMessage(user.name, message.text));
+    }
+
+    callback('');
+  });
+// CREATE MESSAGE LOCATION ROOM /////////////////////////////////////////////
   socket.on('createLocationMessage', (cords) => {
-    io.emit('newLocationMessage', generateLocationMessage('Admin', cords.latitude, cords.longitude));
+    var user = users.getUser(socket.id);
+
+    if(user){
+      io.to(user.room).emit('newLocationMessage', generateLocationMessage(user.name, cords.latitude, cords.longitude));
+    }
+
   });
 
   socket.on('disconnect', () => {
