@@ -14,13 +14,44 @@ function scrollToBottom() {
   }
 }
 
+// CONNECT //////////////////////////////////////////////////////////////////
+
 socket.on('connect', function () {
-  console.log('Connected to server');
+  //console.log('Connected to server');
+  // window.location.search contienei parametri passati nell'url
+  // deparam è una piccola libreria esterna che consente di
+  // convertire una stringa di parametri (quelli dell'url) in un oggetto
+  var params = $.deparam(window.location.search);
+
+  socket.emit('join', params, function (err) {
+    if(err) {
+      alert(err);
+      window.location.href = '/';
+    }else{
+      console.log('No error');
+    }
+  });
 });
+
+// DISCONNECT ///////////////////////////////////////////////////////////////
 
 socket.on('disconnect', function () {
   console.log('Disconnected from server');
 });
+
+// UPDATE USER LIST ////////////////////////////////////////////////////////
+
+socket.on('updateUserList', function (users) {
+  var ol = $('<ol></ol>');
+
+  users.forEach(function (user) {
+    var li = $('<li></li>').text(user);
+    ol.append(li);
+  });
+
+  $('#users').html(ol);
+});
+// NEW MESSAGE /////////////////////////////////////////////////////////////
 
 socket.on('newMessage', function (message) {
   var formattedTime = moment(message.createdAt).format('HH:mm:ss');
@@ -41,6 +72,8 @@ socket.on('newMessage', function (message) {
   // $("#messages").append(li);
 });
 
+// NEW LOCATION MESSAGE ////////////////////////////////////////////////////
+
 socket.on('newLocationMessage', function (message) {
     var formattedTime = moment(message.createdAt).format('HH:mm:ss');
     var template = $('#location-message-template').html();
@@ -60,19 +93,22 @@ socket.on('newLocationMessage', function (message) {
   // $("#messages").append(li);
 });
 
+// ON SUBMIT ///////////////////////////////////////////////////////////////
+
 $('#message-form').on('submit', (e) => {
   e.preventDefault();
 
   var messageTextbox = $('[name=message]');
 
   socket.emit('createMessage', {
-    from: 'Frank',
+    from: 'User',
     text: messageTextbox.val()
   }, function(data) {
     messageTextbox.val('');
   });
 });
 
+// SUBMIT LOCATION /////////////////////////////////////////////////////////
 var locationButton = $("#send-location");
 locationButton.on('click', function () {
   if(!navigator.geolocation){
